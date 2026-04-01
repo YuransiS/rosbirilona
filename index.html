@@ -576,34 +576,8 @@
             const stickyBtn = document.getElementById('sticky-btn');
             const ctaButtons = document.querySelectorAll('.cta-btn');
             
-            // 2. ЛОГІКА А/Б ТЕСТУВАННЯ ЦІНИ ТА ЗАХИСТ ВІД ШАХРАЙСТВА
-            const urlParams = new URLSearchParams(window.location.search);
-            const priceParam = urlParams.get('p'); // Наприклад: ?p=v1, ?p=v2, ?p=v3
-            
-            // Мапа цін: ключ - значення в URL, значення - реальна ціна
-            const priceMap = {
-                'v1': 290,
-                'v2': 390,
-                'v3': 590
-            };
-
-            // Дефолтна ціна (найвища) для безпеки
-            let currentPrice = priceMap[priceParam] || 590; 
-
-            // Оновлення цін на сайті
-            document.querySelectorAll('.dynamic-price').forEach(el => {
-                el.textContent = currentPrice + ' ₴';
-            });
-
-            // 3. ПЕРЕДАЧА ДАНИХ ПІКСЕЛЮ ПРИ ОПЛАТІ (InitiateCheckout)
-            function trackInitiateCheckout() {
-                if(typeof fbq !== 'undefined') {
-                    fbq('track', 'InitiateCheckout', {
-                        value: currentPrice,
-                        currency: 'UAH'
-                    });
-                }
-            }
+            // 2. Оновлення цін на сайті
+            updateDisplayPrices();
             
             ScrollTrigger.create({
                 trigger: "body",
@@ -679,11 +653,26 @@
         const WFP_DOMAIN = 'freelance'; 
 
         const urlParams = new URLSearchParams(window.location.search);
-        const currentPrice = parseInt(urlParams.get('price')) || 390; 
+        const priceMap = { 'v1': 290, 'v2': 390, 'v3': 590 };
+        const currentPrice = priceMap[urlParams.get('p')] || parseInt(urlParams.get('price')) || 390;
 
-        document.querySelectorAll('.dynamic-price').forEach(el => {
-            el.textContent = currentPrice + ' ₴';
-        });
+        function updateDisplayPrices() {
+            document.querySelectorAll('.dynamic-price').forEach(el => {
+                el.textContent = currentPrice + ' ₴';
+            });
+        }
+
+        // Initialize prices
+        updateDisplayPrices();
+
+        function trackInitiateCheckout() {
+            if(typeof fbq !== 'undefined') {
+                fbq('track', 'InitiateCheckout', {
+                    value: currentPrice,
+                    currency: 'UAH'
+                });
+            }
+        }
 
         function getUTMs() {
             return {
