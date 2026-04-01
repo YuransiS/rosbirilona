@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Персональна діагностика | Ілона Солдатюк</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Intl-Tel-Input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Бібліотека для шифрування підпису WayForPay -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <!-- Lenis & GSAP -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.39/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+
+    <!-- Facebook Pixel Code -->
+    <script>
+        const PIXEL_ID = '1299600201739170'; 
+        
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        if(PIXEL_ID !== '1299600201739170') {
+            fbq('init', PIXEL_ID);
+            fbq('track', 'PageView');
+        }
+    </script>
+    <!-- End Facebook Pixel Code -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    },
+                    colors: {
+                        brand: {
+                            cream: '#FFF8F0',
+                            gold: '#C4956A',
+                            goldDark: '#A67B52',
+                            blush: '#E8C4B8',
+                            charcoal: '#2D2926',
+                            charcoalLight: '#4A4543',
+                            bgAlt: '#FDF6ED'
+                        }
+                    },
+                    letterSpacing: {
+                        tightest: '-0.01em',
+                        widest: '0.2em',
+                        superwide: '0.4em'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: #FFF8F0; 
+            color: #4A4543; 
+        }
+        
+        h1, h2, h3, h4, .serif-heading {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+            color: #2D2926;
+        }
+
+        .iti { width: 100%; }
+        .iti__flag-container { color: #2D2926; }
+        .iti__country-list { color: #2D2926 !important; background-color: #FFF8F0 !important; border: 1px solid rgba(196, 149, 106, 0.2) !important; border-radius: 16px; margin-top: 8px;}
+        .iti__country { color: #2D2926 !important; }
+        .iti__dial-code { color: #4A4543 !important; }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Premium UI Elements */
+        .btn-gold {
+            background: linear-gradient(135deg, #C4956A, #A67B52);
+            box-shadow: 0 20px 50px -15px rgba(196, 149, 106, 0.6);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -10px rgba(196, 149, 106, 0.8);
+        }
+        .btn-gold::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .btn-gold:hover::after {
+            left: 100%;
+        }
+
+        .card-premium {
+            background: #ffffff;
+            border-radius: 32px;
+            border: 1px solid rgba(196, 149, 106, 0.1);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 10px 40px -20px rgba(45, 41, 38, 0.05);
+        }
+        .card-premium:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px -15px rgba(196, 149, 106, 0.2);
+            border-color: rgba(196, 149, 106, 0.3);
+        }
+
+        .badge-premium {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(196, 149, 106, 0.4);
+            color: #A67B52;
+        }
+
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #C4956A, #A67B52);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Lenis Smooth Scroll */
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+        /* GSAP Initial States */
+        .reveal-up { opacity: 0; transform: translateY(30px); }
+        .reveal-stagger > * { opacity: 0; transform: translateY(20px); }
+    </style>
+</head>
+<body class="antialiased pb-20 md:pb-0 selection:bg-brand-blush/50 selection:text-brand-charcoal overflow-x-hidden">
+
+    <!-- БЛОК 1: HERO -->
+    <header class="relative h-[100svh] flex flex-col justify-end pb-12 md:pb-24 px-4 overflow-hidden">
+        
+        <!-- Hero Background -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.ibb.co/HDy6g3J0/IMG-2748.jpg" alt="Ілона Солдатюк" class="w-full h-full object-cover object-center opacity-90 mix-blend-multiply filter contrast-[1.05] brightness-[1.05]">
+        </div>
+        
+        <!-- Soft gradients for readability & layering -->
+        <div class="absolute inset-0 z-0 bg-gradient-to-t from-brand-cream/90 via-brand-cream/20 to-transparent"></div>
+        <div class="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] bg-brand-blush/30 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+        <div class="absolute bottom-[10%] -left-[10%] w-[50vw] h-[50vw] bg-brand-gold/20 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+
+        <div class="absolute top-8 left-0 w-full flex justify-center z-20 px-4 reveal-up">
+            <span class="inline-block py-2 px-6 rounded-full badge-premium text-xs font-semibold tracking-widest uppercase shadow-sm text-center">
+                Персональна діагностика
+            </span>
+        </div>
+
+        <div class="container mx-auto max-w-4xl relative z-10 text-center flex flex-col items-center">
+            <h1 class="text-3xl md:text-5xl lg:text-5xl font-semibold leading-[1.2] mb-4 drop-shadow-sm reveal-up">
+                Як вийти зі стану <span class="italic text-brand-gold">тривоги</span>, самознецінення і внутрішньої <span class="italic text-brand-gold">порожнечі</span>
+            </h1>
+            <p class="text-base md:text-lg text-brand-charcoalLight mb-8 font-light max-w-xl leading-relaxed reveal-up" style="transition-delay: 0.1s;">
+                БЕЗ років терапії та тисяч на психологів. Отримай чіткий план: що тримає тебе у тривозі і нещасливих стосунках, та конкретні кроки для виходу.
+            </p>
+            
+            <div class="w-full max-w-xs md:max-w-sm mb-6 flex flex-col items-center gap-3">
+                <div class="flex items-center justify-center gap-4">
+                    <span class="text-brand-charcoalLight/50 line-through text-lg font-light">1790 ₴</span>
+                    <span class="text-5xl font-semibold text-brand-charcoal tracking-tighter dynamic-price">390 ₴</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-goldDark"></i>
+                    <p class="text-[10px] text-brand-charcoalLight font-medium tracking-widest uppercase">До збільшення: <span id="timer" class="font-bold text-brand-goldDark">14:59</span></p>
+                </div>
+            </div>
+
+            <button onclick="openModal()" class="cta-btn btn-gold rounded-full w-full md:w-auto px-10 py-5 text-white font-bold text-xs tracking-widest flex items-center justify-center gap-3 mx-auto magnetic-btn">
+                ХОЧУ ПЕРСОНАЛЬНИЙ РОЗБІР
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- БЛОК 2: ВІДГУКИ -->
+    <section class="py-24 bg-white relative">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.03] pointer-events-none"></div>
+        <div class="container mx-auto px-4 z-10 relative">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal-up">
+                <span class="text-brand-goldDark text-sm tracking-widest font-semibold mb-4 block">РЕЗУЛЬТАТИ</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-semibold mb-6">Ось як змінюється стан жінок після діагностики</h2>
+                <div class="w-16 h-px bg-brand-gold mx-auto"></div>
+            </div>
+            
+            <div class="flex overflow-x-auto gap-6 pb-12 pt-4 px-4 hide-scrollbar snap-x reveal-up" style="margin-left: -1rem; margin-right: -1rem; padding-left: 1rem; padding-right: 1rem;">
+                <img src="feedback1.jpg.jpg" loading="lazy" alt="Відгук" class="w-[280px] md:w-[320px] h-auto rounded-[2rem] snap-center border border-brand-cream shadow-[0_15px_40px_-15px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-2">
+                <img src="feedback7.jpg.jpg" loading="lazy" alt="Відгук" class="w-[280px] md:w-[320px] h-auto rounded-[2rem] snap-center border border-brand-cream shadow-[0_15px_40px_-15px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-2">
+                <img src="feedback9.jpg.jpg" loading="lazy" alt="Відгук" class="w-[280px] md:w-[320px] h-auto rounded-[2rem] snap-center border border-brand-cream shadow-[0_15px_40px_-15px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-2">
+                <img src="feedback4.jpg.jpg" loading="lazy" alt="Відгук" class="w-[280px] md:w-[320px] h-auto rounded-[2rem] snap-center border border-brand-cream shadow-[0_15px_40px_-15px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-2">
+                <img src="feedback8.jpg.jpg" loading="lazy" alt="Відгук" class="w-[280px] md:w-[320px] h-auto rounded-[2rem] snap-center border border-brand-cream shadow-[0_15px_40px_-15px_rgba(0,0,0,0.1)] transition-transform hover:-translate-y-2">
+            </div>
+
+            <div class="text-center mt-4 reveal-up">
+                <p class="text-brand-charcoalLight/60 text-sm flex items-center justify-center gap-2 font-medium mb-8">
+                    Гортайте вправо <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </p>
+                <button onclick="openModal()" class="rounded-full px-10 py-4 border border-brand-gold text-brand-goldDark hover:bg-brand-gold hover:text-white text-sm font-bold tracking-widest transition-all">
+                    БІЛЬШЕ ВІДГУКІВ ТА ЗАПИС
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 3: БОЛІ -->
+    <section class="py-24 px-4 bg-brand-bgAlt relative">
+        <div class="absolute -left-[20%] top-[20%] w-[60vw] h-[60vw] bg-brand-blush/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="container mx-auto max-w-5xl relative z-10">
+            <div class="text-center mb-16 reveal-up">
+                <h2 class="text-3xl md:text-5xl font-semibold mb-6">Впізнаєш себе?</h2>
+                <div class="w-16 h-px bg-brand-gold mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 reveal-stagger">
+                <div class="card-premium p-8 md:p-10">
+                    <div class="w-14 h-14 rounded-full bg-brand-cream border border-brand-gold/20 flex items-center justify-center mb-6 text-brand-gold">
+                        <i data-lucide="brain-circuit" class="w-6 h-6 z-10"></i>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4 tracking-normal">Тривога і самознецінення не відпускають</h3>
+                    <p class="text-brand-charcoalLight leading-relaxed font-light">Ти живеш у постійному стані «щось не так». Сумніви, самокритика, відчуття що ти недостатньо хороша. Це як фоновий шум, який ніколи не вимикається.</p>
+                </div>
+                
+                <div class="card-premium p-8 md:p-10">
+                    <div class="w-14 h-14 rounded-full bg-brand-cream border border-brand-gold/20 flex items-center justify-center mb-6 text-brand-gold">
+                        <i data-lucide="heart-crack" class="w-6 h-6 z-10"></i>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4 tracking-normal">Стосунки, де тебе не бачать</h3>
+                    <p class="text-brand-charcoalLight leading-relaxed font-light">Ти тягнеш все на собі. Даєш більше, ніж отримуєш. Чоловік не чує тебе, а ти не знаєш, як це змінити. І з'являється відчуття нереалізованості як жінки.</p>
+                </div>
+                
+                <div class="card-premium p-8 md:p-10">
+                    <div class="w-14 h-14 rounded-full bg-brand-cream border border-brand-gold/20 flex items-center justify-center mb-6 text-brand-gold">
+                        <i data-lucide="user-x" class="w-6 h-6 z-10"></i>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4 tracking-normal">Страх самотності</h3>
+                    <p class="text-brand-charcoalLight leading-relaxed font-light">Ти боїшся залишитися одна і через цей страх терпиш те, що руйнує тебе зсередини. Або навпаки — закрилася після болю і не знаєш, як знову відкритися та довіряти.</p>
+                </div>
+                
+                <div class="card-premium p-8 md:p-10">
+                    <div class="w-14 h-14 rounded-full bg-brand-cream border border-brand-gold/20 flex items-center justify-center mb-6 text-brand-gold">
+                        <i data-lucide="battery-warning" class="w-6 h-6 z-10"></i>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-4 tracking-normal">Порожнеча всередині</h3>
+                    <p class="text-brand-charcoalLight leading-relaxed font-light">Жіночність десь загубилась під масками, обов'язками та стресом. Немає легкості, немає енергії, немає відчуття «я — жінка».</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 4: ПОМИЛКИ -->
+    <section class="py-24 bg-brand-charcoal text-brand-cream relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 relative z-10">
+            <div class="text-center mb-16 reveal-up">
+                <span class="text-brand-gold uppercase tracking-widest text-sm font-semibold mb-4 block">90% ЖІНОК РОБЛЯТЬ ОДНІ Й ТІ САМІ ПОМИЛКИ</span>
+                <h2 class="text-3xl md:text-5xl font-semibold mb-6 text-white text-transform-none">Чому ти застрягла у стані тривоги?</h2>
+                <div class="w-16 h-px bg-brand-goldDark mx-auto"></div>
+            </div>
+            
+            <div class="space-y-4 reveal-stagger">
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 p-8 md:p-10 rounded-[2rem] hover:bg-white/10 transition-colors flex gap-6 md:gap-8 flex-col md:flex-row">
+                    <div class="text-brand-gold font-serif text-5xl md:text-6xl italic opacity-50 leading-none mb-2 md:mb-0 shrink-0">01</div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3 text-white tracking-normal">Слухають поверхневі поради з Instagram</h3>
+                        <p class="text-brand-cream/70 font-light leading-relaxed">Не розуміючи, що вони можуть поглиблювати тривогу. «Просто полюби себе», «відпусти ситуацію» — звучить гарно, але не працює без розуміння глибинних причин.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 p-8 md:p-10 rounded-[2rem] hover:bg-white/10 transition-colors flex gap-6 md:gap-8 flex-col md:flex-row">
+                    <div class="text-brand-gold font-serif text-5xl md:text-6xl italic opacity-50 leading-none mb-2 md:mb-0 shrink-0">02</div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3 text-white tracking-normal">Борються з наслідками, а не причинами</h3>
+                        <p class="text-brand-cream/70 font-light leading-relaxed">Намагаються «тримати себе в руках», контролювати тривогу, терпіти — замість того, щоб прибрати корінь проблеми. Це як заморожувати біль, не лікуючи рану.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 p-8 md:p-10 rounded-[2rem] hover:bg-white/10 transition-colors flex gap-6 md:gap-8 flex-col md:flex-row">
+                    <div class="text-brand-gold font-serif text-5xl md:text-6xl italic opacity-50 leading-none mb-2 md:mb-0 shrink-0">03</div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3 text-white tracking-normal">Не вміють утримувати фокус на собі</h3>
+                        <p class="text-brand-cream/70 font-light leading-relaxed">Постійно віддають енергію чоловікам, дітям, роботі. Шукають опору ззовні, а на себе не залишається нічого. Люди перевтомлюються, а жінка вигорає.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 5: РІШЕННЯ -->
+    <section class="py-24 px-4 bg-brand-cream relative">
+        <div class="absolute right-0 top-1/4 w-[40vw] h-[40vw] bg-brand-gold/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="container mx-auto max-w-5xl relative z-10">
+            <div class="text-center mb-16 reveal-up">
+                <span class="inline-block py-1.5 px-4 rounded-full badge-premium text-xs font-semibold tracking-widest uppercase mb-6">
+                    Психологи приховують це
+                </span>
+                <h2 class="text-3xl md:text-5xl font-semibold mb-6">Що ти отримаєш на діагностиці</h2>
+                <div class="w-16 h-px bg-brand-gold mx-auto mb-8"></div>
+                <p class="text-brand-charcoalLight font-light text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">Це не шаблонні поради. Це глибокий розбір саме ТВОЄЇ ситуації. Я глибоко аналізую твою анкету та записую детальні голосові та відео з конкретними рішеннями.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-16 reveal-stagger">
+                <div class="card-premium p-8 border-t-4 border-t-brand-gold flex flex-col items-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-brand-bgAlt flex items-center justify-center mb-6 shadow-inner">
+                        <i data-lucide="search" class="w-7 h-7 text-brand-goldDark"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3 tracking-normal">Діагностика стану</h3>
+                    <p class="text-brand-charcoalLight/80 font-light leading-relaxed text-sm">Я визначу корінь твоєї тривоги та самознецінення. Покажу приховану причину, чому ти застрягла і що з цим робити далі.</p>
+                </div>
+                
+                <div class="card-premium p-8 border-t-4 border-t-brand-gold flex flex-col items-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-brand-bgAlt flex items-center justify-center mb-6 shadow-inner">
+                        <i data-lucide="map" class="w-7 h-7 text-brand-goldDark"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3 tracking-normal">Персональна стратегія</h3>
+                    <p class="text-brand-charcoalLight/80 font-light leading-relaxed text-sm">Ти отримаєш чіткий план: які конкретні кроки зроблять тебе вільною від тривоги, а які звички та патерни потрібно прибрати.</p>
+                </div>
+                
+                <div class="card-premium p-8 border-t-4 border-t-brand-gold flex flex-col items-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-brand-bgAlt flex items-center justify-center mb-6 shadow-inner">
+                        <i data-lucide="anchor" class="w-7 h-7 text-brand-goldDark"></i>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3 tracking-normal">Внутрішня опора</h3>
+                    <p class="text-brand-charcoalLight/80 font-light leading-relaxed text-sm">Конкретний інструмент, який допоможе знайти опору в собі — не в чоловіках, не у схваленні. І відчути себе жінкою вже сьогодні.</p>
+                </div>
+            </div>
+
+            <div class="text-center reveal-up">
+                <button onclick="openModal()" class="cta-btn btn-gold rounded-full w-full md:w-auto px-12 py-5 text-white font-bold text-sm tracking-widest inline-flex items-center justify-center gap-3 magnetic-btn">
+                    ОТРИМАТИ РОЗБІР СИТУАЦІЇ
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 6: АВТОР -->
+    <section class="py-0 flex flex-col md:flex-row min-h-[80vh] bg-white">
+        <div class="w-full md:w-1/2 min-h-[50vh] relative overflow-hidden">
+            <div class="absolute inset-0 z-10 bg-gradient-to-r from-white/20 to-transparent"></div>
+            <!-- Apply object-position to better fit portrait photo -->
+            <img src="https://i.ibb.co/VpJJpMVW/IMG-2750.jpg" alt="Ілона Солдатюк" class="w-full h-full object-cover object-center absolute inset-0" data-speed="calc(1 - 0.9)">
+        </div>
+        <div class="w-full md:w-1/2 flex items-center p-8 md:p-16 lg:p-24 bg-brand-bgAlt relative">
+            <div class="max-w-xl mx-auto md:mx-0 reveal-up">
+                <span class="text-brand-gold uppercase tracking-widest text-xs font-semibold mb-4 block">ХТО ВЕДЕ РОЗБІР</span>
+                <h2 class="text-4xl md:text-5xl font-semibold mb-2">Ілона Солдатюк</h2>
+                <div class="w-12 h-px bg-brand-charcoal/20 mb-8 mt-4"></div>
+                
+                <div class="space-y-6 text-brand-charcoalLight font-light leading-relaxed text-lg">
+                    <p class="font-medium text-brand-charcoal italic serif-heading text-transform-none text-2xl" style="text-transform: none;">"Я знаю, як це — коли тебе не бачать."</p>
+                    <p>Я пройшла тяжку хворобу, розлучення без підтримки і будувала бізнес у двох країнах — одна. Я знаю, як це: прокидатись і будувати себе заново. Носити маску «все добре», бо є дитина, бо робота, бо світ не чекає.</p>
+                    <p>Паралельно — 10+ років у глибинній психотерапії, розстановках, тілесних практиках та роботі з жінками.</p>
+                    <p>Сьогодні я — жінка, яка знайшла опору в собі. І я точно знаю: проблема не в тому, що ти «слабка». Проблема в тому, що ніхто не показав тобі ТВІЙ шлях.</p>
+                </div>
+                
+                <div class="mt-10 p-8 card-premium bg-white border-l-4 border-l-brand-gold italic text-brand-charcoal rounded-none rounded-r-3xl text-sm leading-relaxed font-medium">
+                    «Я не даю шаблонних порад. На діагностиці я розберу саме ТВОЮ ситуацію — щоб ти точно знала, як вийти з тривоги і повернути себе.»
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 8-9: ГАРАНТІЯ ТА ЗМІНИ -->
+    <section class="py-24 px-4 bg-brand-cream relative">
+        <div class="container mx-auto max-w-4xl text-center relative z-10">
+            
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white border border-brand-gold/30 text-brand-gold mb-8 shadow-xl reveal-up">
+                <i data-lucide="shield-check" class="w-12 h-12"></i>
+            </div>
+            
+            <div class="reveal-up">
+                <h2 class="text-3xl md:text-5xl font-semibold mb-6">100% Гарантія повернення</h2>
+                <div class="w-16 h-px bg-brand-gold mx-auto mb-6"></div>
+                <p class="text-brand-charcoalLight font-light mb-16 text-lg max-w-xl mx-auto">Якщо персональна діагностика не принесе користі — я поверну вам усі кошти без запитань.</p>
+            </div>
+
+            <div class="text-left bg-white card-premium p-8 md:p-12 mb-16 relative overflow-hidden reveal-up w-full max-w-3xl mx-auto">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-brand-blush/10 rounded-full blur-[60px] pointer-events-none"></div>
+                <h3 class="text-2xl md:text-3xl font-semibold text-center mb-10 tracking-normal">Що зміниться після розбору:</h3>
+                
+                <ul class="space-y-6 reveal-stagger">
+                    <li class="flex items-start gap-5">
+                        <div class="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-goldDark"></i>
+                        </div>
+                        <p class="text-lg text-brand-charcoalLight font-light">Ти зрозумієш, ЧОМУ тривога не відпускає і що з цим робити</p>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-goldDark"></i>
+                        </div>
+                        <p class="text-lg text-brand-charcoalLight font-light">Перестанеш тягнути все на собі і почнеш жити жіночно</p>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-goldDark"></i>
+                        </div>
+                        <p class="text-lg text-brand-charcoalLight font-light">Чоловіки будуть цінувати тебе, а не використовувати</p>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-goldDark"></i>
+                        </div>
+                        <p class="text-lg text-brand-charcoalLight font-light">Ти скажеш «ні» без провини і «так» без страху</p>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-goldDark"></i>
+                        </div>
+                        <p class="text-lg text-brand-charcoalLight font-light">Тривога відступить, а на її місце прийде спокій та легкість</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="reveal-up">
+                <button onclick="openModal()" class="cta-btn btn-gold rounded-full w-full md:w-auto px-14 py-6 text-white font-bold text-sm tracking-widest inline-flex items-center justify-center gap-3 magnetic-btn shadow-2xl">
+                    ПОЧАТИ ШЛЯХ ДО СЕБЕ
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Стікі кнопка для мобільних -->
+    <div id="sticky-btn" class="fixed bottom-4 left-4 right-4 md:hidden z-40 hidden opacity-0 transition-all duration-500 transform translate-y-10">
+        <button onclick="openModal()" class="w-full py-4 btn-gold rounded-full text-white font-bold text-[10px] tracking-widest shadow-xl flex items-center justify-center gap-2">
+            ОТРИМАТИ ДОСТУП ЗА <span class="dynamic-price text-sm">390 ₴</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+    <!-- МОДАЛЬНЕ ВІКНО (POP-UP) -->
+    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-brand-charcoal/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        
+        <div class="card-premium p-8 md:p-10 w-full max-w-md relative z-10 mx-4 transform scale-95 transition-transform duration-300" id="modal-content">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-brand-charcoalLight/50 hover:text-brand-charcoal transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-semibold mb-2 text-brand-charcoal lowercase" style="font-variant: small-caps;">Оформлення</h3>
+                <div class="w-10 h-px bg-brand-gold mx-auto"></div>
+            </div>
+
+            <form id="leadForm" class="space-y-6" novalidate>
+                <div>
+                    <label class="block text-[10px] font-semibold tracking-widest text-brand-charcoalLight uppercase mb-2">Ваше ім'я</label>
+                    <input type="text" id="name" required placeholder="Ім'я" class="w-full bg-brand-cream/50 border border-brand-gold/30 rounded-2xl px-5 py-4 text-brand-charcoal focus:outline-none focus:border-brand-gold focus:bg-white transition-all font-light">
+                    <p id="name-error" class="text-red-500 text-xs mt-2 hidden font-medium">Ім'я не може містити цифри</p>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-semibold tracking-widest text-brand-charcoalLight uppercase mb-2">Номер телефону</label>
+                    <input type="tel" id="phone" required class="w-full bg-brand-cream/50 border border-brand-gold/30 rounded-2xl px-5 py-4 text-brand-charcoal focus:outline-none focus:border-brand-gold focus:bg-white transition-all font-light">
+                    <p id="phone-error" class="text-red-500 text-xs mt-2 hidden font-medium">Невірний формат номера</p>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold tracking-widest text-brand-charcoalLight uppercase mb-2">Telegram (Нікнейм)</label>
+                    <div class="relative">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-brand-charcoalLight/50">@</span>
+                        <input type="text" id="tg_nick" required placeholder="username" class="w-full bg-brand-cream/50 border border-brand-gold/30 rounded-2xl pl-10 pr-5 py-4 text-brand-charcoal focus:outline-none focus:border-brand-gold focus:bg-white transition-all font-light">
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="submitBtn" class="btn-gold rounded-full w-full py-5 text-white font-bold text-sm tracking-widest flex justify-center items-center h-16">
+                        <span id="btnText">ОПЛАТИТИ <span class="dynamic-price">390 ₴</span></span>
+                        <i data-lucide="loader-2" id="btnLoader" class="w-5 h-5 animate-spin hidden ml-3"></i>
+                    </button>
+                    <p class="text-[10px] uppercase tracking-widest text-center text-brand-charcoalLight/40 mt-4">Натискаючи кнопку, ви погоджуєтесь з політикою конфіденційності</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // -------------------------
+        // INITIALIZE LENIS & GSAP
+        // -------------------------
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Update ScrollTrigger on Lenis scroll
+        lenis.on('scroll', ScrollTrigger.update);
+
+        gsap.ticker.add((time)=>{
+            lenis.raf(time * 1000)
+        });
+        gsap.ticker.lagSmoothing(0, 0);
+
+        // Intro Reveal Animations
+        setTimeout(() => {
+            gsap.utils.toArray('.reveal-up').forEach(elem => {
+                gsap.to(elem, {
+                    scrollTrigger: {
+                        trigger: elem,
+                        start: "top 85%",
+                    },
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+            });
+
+            gsap.utils.toArray('.reveal-stagger').forEach(container => {
+                gsap.to(container.children, {
+                    scrollTrigger: {
+                        trigger: container,
+                        start: "top 80%",
+                    },
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power2.out"
+                });
+            });
+
+            // Sticky Button Logic
+            const stickyBtn = document.getElementById('sticky-btn');
+            const ctaButtons = document.querySelectorAll('.cta-btn');
+            
+            ScrollTrigger.create({
+                trigger: "body",
+                start: "top -100",
+                onUpdate: (self) => {
+                    let isCtaVisible = false;
+                    ctaButtons.forEach(btn => {
+                        const rect = btn.getBoundingClientRect();
+                        if (rect.top + 20 < window.innerHeight && rect.bottom - 20 > 0) {
+                            isCtaVisible = true;
+                        }
+                    });
+
+                    if (isCtaVisible || self.progress < 0.05) {
+                        gsap.to(stickyBtn, { opacity: 0, y: 30, pointerEvents: 'none', duration: 0.2, ease: "power2.in" });
+                    } else {
+                        stickyBtn.classList.remove('hidden');
+                        gsap.to(stickyBtn, { opacity: 1, y: 0, pointerEvents: 'auto', duration: 0.2, ease: "power2.out" });
+                    }
+                }
+            });
+
+            // Parallax
+            gsap.utils.toArray('[data-speed]').forEach(elem => {
+                const speed = elem.getAttribute('data-speed');
+                gsap.to(elem, {
+                    y: () => (1 - parseFloat(speed)) * (ScrollTrigger.maxScroll(window) - (elem.parentElement.getBoundingClientRect().top + window.scrollY)),
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: elem.parentElement,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: true
+                    }
+                });
+            });
+        }, 100);
+
+        // Magnetic Buttons (Desktop only)
+        if(window.innerWidth > 768) {
+            const magneticButtons = document.querySelectorAll('.magnetic-btn');
+            magneticButtons.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    
+                    gsap.to(btn, {
+                        x: x * 0.2,
+                        y: y * 0.2,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.5,
+                        ease: "elastic.out(1, 0.3)"
+                    });
+                });
+            });
+        }
+
+        // -------------------------
+        // BUSINESS LOGIC
+        // -------------------------
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQFF2jg87YSoQoh6YchHNuTY22BADTnhCzSSrbIPIZpHdi9DTt5QiD58wQW0F24bBHBw/exec'; 
+
+        const WFP_MERCHANT_ACCOUNT = 'freelance_user_688267859900c';
+        const WFP_MERCHANT_SECRET = 'a1d150e3620582a3f43a88d65e7633710d75caba';
+        const WFP_DOMAIN = 'freelance'; 
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentPrice = parseInt(urlParams.get('price')) || 390; 
+
+        document.querySelectorAll('.dynamic-price').forEach(el => {
+            el.textContent = currentPrice + ' ₴';
+        });
+
+        function getUTMs() {
+            return {
+                utm_source: urlParams.get('utm_source') || '',
+                utm_medium: urlParams.get('utm_medium') || '',
+                utm_campaign: urlParams.get('utm_campaign') || '',
+                utm_content: urlParams.get('utm_content') || '',
+                utm_term: urlParams.get('utm_term') || ''
+            };
+        }
+
+        // Таймер
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                display.textContent = minutes + ":" + seconds;
+                if (--timer < 0) { timer = duration; } 
+            }, 1000);
+        }
+        window.onload = function () { startTimer(60 * 15, document.querySelector('#timer')); };
+
+        // Попап
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        function openModal() {
+            modal.classList.remove('hidden');
+            // Allow display block to apply before animating opacity
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            });
+            if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+        }
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        // Телефон
+        const europeanCountries =["al","ad","at","be","ba","bg","hr","cy","cz","dk","ee","fi","fr","de","gr","hu","is","ie","it","xk","lv","li","lt","lu","mt","md","mc","me","nl","mk","no","pl","pt","ro","sm","rs","sk","si","es","se","ch","ua","gb","va"];
+        const phoneInputField = document.querySelector("#phone");
+        const phoneInput = window.intlTelInput(phoneInputField, {
+            initialCountry: "auto",
+            onlyCountries: europeanCountries, 
+            geoIpLookup: function(success) {
+                fetch("https://get.geojs.io/v1/ip/country.json")
+                    .then(res => res.json())
+                    .then(data => {
+                        let country = data.country.toLowerCase();
+                        if(country === 'ru' || country === 'by') country = 'ua';
+                        success(country);
+                    }).catch(() => success("ua"));
+            },
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+        });
+
+        // Форма
+        const form = document.getElementById('leadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoader = document.getElementById('btnLoader');
+        const phoneError = document.getElementById('phone-error');
+        const nameError = document.getElementById('name-error');
+        const nameInput = document.getElementById('name');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let hasError = false;
+            
+            phoneError.classList.add('hidden');
+            nameError.classList.add('hidden');
+            phoneInputField.classList.remove('border-red-500');
+            nameInput.classList.remove('border-red-500');
+
+            if (/\d/.test(nameInput.value)) {
+                nameError.classList.remove('hidden');
+                nameInput.classList.add('border-red-500');
+                hasError = true;
+            }
+            if (!phoneInput.isValidNumber()) {
+                phoneError.classList.remove('hidden');
+                phoneInputField.classList.add('border-red-500');
+                hasError = true;
+            }
+            if (hasError) return;
+
+            submitBtn.disabled = true;
+            btnText.textContent = ''; // Hide text slightly for loader
+            btnLoader.classList.remove('hidden');
+
+            let tgNick = document.getElementById('tg_nick').value.trim();
+            if(tgNick && !tgNick.startsWith('@')) tgNick = '@' + tgNick;
+
+            const utms = getUTMs();
+            const returnUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'thank-you.html';
+            
+            const orderReference = 'ILONA_505542102_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+
+            const payload = {
+                sheet_id: "505542102",
+                sheetName: "Платний аудит 2.0", 
+                name: nameInput.value.trim(),
+                phone: phoneInput.getNumber(),
+                telegram: tgNick,
+                country: phoneInput.getSelectedCountryData().iso2.toUpperCase(), 
+                "Order ID": orderReference, 
+                price: currentPrice + " грн", 
+                "Статус оплати": "Очікування",
+                ...utms
+            };
+
+            try {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+
+                const orderDate = Math.floor(Date.now() / 1000);
+                const productName = "Персональна діагностика";
+                const productCount = 1;
+                const amount = currentPrice;
+                const currency = "UAH";
+
+                const signString = `${WFP_MERCHANT_ACCOUNT};${WFP_DOMAIN};${orderReference};${orderDate};${amount};${currency};${productName};${productCount};${amount}`;
+                const utf8SignString = CryptoJS.enc.Utf8.parse(signString);
+                const merchantSignature = CryptoJS.HmacMD5(utf8SignString, WFP_MERCHANT_SECRET).toString(CryptoJS.enc.Hex);
+
+                const formWfp = document.createElement("form");
+                formWfp.method = "POST";
+                formWfp.action = "https://secure.wayforpay.com/pay";
+                formWfp.style.display = "none";
+
+                const fields = {
+                    merchantAccount: WFP_MERCHANT_ACCOUNT,
+                    merchantDomainName: WFP_DOMAIN,
+                    orderReference: orderReference,
+                    orderDate: orderDate,
+                    amount: amount,
+                    currency: currency,
+                    returnUrl: returnUrl,
+                    serviceUrl: GOOGLE_SCRIPT_URL,
+                    merchantSignature: merchantSignature,
+                    clientFirstName: payload.name,
+                    clientPhone: payload.phone
+                };
+
+                for (const key in fields) {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = fields[key];
+                    formWfp.appendChild(input);
+                }
+
+                const arrayFields = {
+                    productName: productName,
+                    productCount: productCount,
+                    productPrice: amount
+                };
+
+                for (const key in arrayFields) {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = `${key}[]`;
+                    input.value = arrayFields[key];
+                    formWfp.appendChild(input);
+                }
+
+                document.body.appendChild(formWfp);
+                formWfp.submit();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Сталася помилка при з’єднанні з платіжною системою.');
+                submitBtn.disabled = false;
+                btnText.innerHTML = `ОПЛАТИТИ <span class="dynamic-price">${currentPrice} ₴</span>`;
+                btnLoader.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
