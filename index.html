@@ -166,36 +166,36 @@
         
         <!-- Hero Background -->
         <div class="absolute inset-0 z-0">
-            <img src="https://i.ibb.co/HDy6g3J0/IMG-2748.jpg" alt="Ілона Солдатюк" class="w-full h-full object-cover object-center opacity-90 mix-blend-multiply filter contrast-[1.05] brightness-[1.05]">
+            <img src="https://i.ibb.co/HDy6g3J0/IMG-2748.jpg" alt="Ілона Солдатюк" class="w-full h-full object-cover object-center scale-105 mix-blend-multiply filter contrast-[1.1] brightness-[0.9]">
         </div>
         
-        <!-- Soft gradients for readability & layering -->
-        <div class="absolute inset-0 z-0 bg-gradient-to-t from-brand-cream/90 via-brand-cream/20 to-transparent"></div>
-        <div class="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] bg-brand-blush/30 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+        <!-- Stronger dark gradient for text readability -->
+        <div class="absolute inset-0 z-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        <div class="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] bg-brand-gold/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
         <div class="absolute bottom-[10%] -left-[10%] w-[50vw] h-[50vw] bg-brand-gold/20 rounded-full blur-[120px] z-0 pointer-events-none"></div>
 
         <div class="absolute top-8 left-0 w-full flex justify-center z-20 px-4 reveal-up">
-            <span class="inline-block py-2 px-6 rounded-full badge-premium text-xs font-semibold tracking-widest uppercase shadow-sm text-center">
+            <span class="inline-block py-2 px-6 rounded-full badge-premium !bg-black/30 !border-white/20 !text-white text-xs font-semibold tracking-widest uppercase shadow-sm text-center backdrop-blur-md">
                 Персональна діагностика
             </span>
         </div>
 
         <div class="container mx-auto max-w-4xl relative z-10 text-center flex flex-col items-center">
-            <h1 class="text-3xl md:text-5xl lg:text-5xl font-semibold leading-[1.2] mb-4 drop-shadow-sm reveal-up">
+            <h1 class="text-3xl md:text-5xl lg:text-5xl font-semibold leading-[1.2] mb-4 drop-shadow-lg reveal-up text-white">
                 Як вийти зі стану <span class="italic text-brand-gold">тривоги</span>, самознецінення і внутрішньої <span class="italic text-brand-gold">порожнечі</span>
             </h1>
-            <p class="text-base md:text-lg text-brand-charcoalLight mb-8 font-light max-w-xl leading-relaxed reveal-up" style="transition-delay: 0.1s;">
+            <p class="text-base md:text-lg text-white/90 mb-8 font-light max-w-xl leading-relaxed reveal-up" style="transition-delay: 0.1s;">
                 БЕЗ років терапії та тисяч на психологів. Отримай чіткий план: що тримає тебе у тривозі і нещасливих стосунках, та конкретні кроки для виходу.
             </p>
             
             <div class="w-full max-w-xs md:max-w-sm mb-6 flex flex-col items-center gap-3">
                 <div class="flex items-center justify-center gap-4">
-                    <span class="text-brand-charcoalLight/50 line-through text-lg font-light">1790 ₴</span>
-                    <span class="text-5xl font-semibold text-brand-charcoal tracking-tighter dynamic-price">390 ₴</span>
+                    <span class="text-white/50 line-through text-lg font-light">1790 ₴</span>
+                    <span class="text-5xl font-semibold text-white tracking-tighter dynamic-price">390 ₴</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-goldDark"></i>
-                    <p class="text-[10px] text-brand-charcoalLight font-medium tracking-widest uppercase">До збільшення: <span id="timer" class="font-bold text-brand-goldDark">14:59</span></p>
+                <div class="flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/20 backdrop-blur-sm">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-gold"></i>
+                    <p class="text-[10px] text-white font-medium tracking-widest uppercase">До збільшення: <span id="timer" class="font-bold text-brand-gold">14:59</span></p>
                 </div>
             </div>
 
@@ -576,6 +576,35 @@
             const stickyBtn = document.getElementById('sticky-btn');
             const ctaButtons = document.querySelectorAll('.cta-btn');
             
+            // 2. ЛОГІКА А/Б ТЕСТУВАННЯ ЦІНИ ТА ЗАХИСТ ВІД ШАХРАЙСТВА
+            const urlParams = new URLSearchParams(window.location.search);
+            const priceParam = urlParams.get('p'); // Наприклад: ?p=v1, ?p=v2, ?p=v3
+            
+            // Мапа цін: ключ - значення в URL, значення - реальна ціна
+            const priceMap = {
+                'v1': 290,
+                'v2': 390,
+                'v3': 590
+            };
+
+            // Дефолтна ціна (найвища) для безпеки
+            let currentPrice = priceMap[priceParam] || 590; 
+
+            // Оновлення цін на сайті
+            document.querySelectorAll('.dynamic-price').forEach(el => {
+                el.textContent = currentPrice + ' ₴';
+            });
+
+            // 3. ПЕРЕДАЧА ДАНИХ ПІКСЕЛЮ ПРИ ОПЛАТІ (InitiateCheckout)
+            function trackInitiateCheckout() {
+                if(typeof fbq !== 'undefined') {
+                    fbq('track', 'InitiateCheckout', {
+                        value: currentPrice,
+                        currency: 'UAH'
+                    });
+                }
+            }
+            
             ScrollTrigger.create({
                 trigger: "body",
                 start: "top -100",
@@ -691,7 +720,7 @@
                 modalContent.classList.remove('scale-95');
                 modalContent.classList.add('scale-100');
             });
-            if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+            trackInitiateCheckout();
         }
         function closeModal() {
             modal.classList.add('opacity-0');
@@ -755,8 +784,15 @@
             let tgNick = document.getElementById('tg_nick').value.trim();
             if(tgNick && !tgNick.startsWith('@')) tgNick = '@' + tgNick;
 
-            const utms = getUTMs();
-            const returnUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'thank-you.html';
+            const utms = {
+                utm_source: urlParams.get('utm_source') || '',
+                utm_medium: urlParams.get('utm_medium') || '',
+                utm_campaign: urlParams.get('utm_campaign') || '',
+                utm_content: urlParams.get('utm_content') || '',
+                utm_term: urlParams.get('utm_term') || ''
+            };
+
+            const returnUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `thankyou.html?value=${currentPrice}`;
             
             const orderReference = 'ILONA_505542102_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
 
@@ -781,7 +817,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+                trackInitiateCheckout();
 
                 const orderDate = Math.floor(Date.now() / 1000);
                 const productName = "Персональна діагностика";
