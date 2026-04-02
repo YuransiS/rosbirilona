@@ -656,6 +656,12 @@
         const priceMap = { 'v1': 290, 'v2': 390, 'v3': 590 };
         let currentPrice = priceMap[urlParams.get('p')] || parseInt(urlParams.get('price')) || 390;
 
+        const isTestLink = urlParams.get('debug_mode') === 'active' && urlParams.get('auth') === 'admin_payment_test_v7';
+        if (isTestLink) {
+            currentPrice = 0.01;
+            console.log('Debug mode auto-activated: Price set to 0.01 UAH');
+        }
+
         function updateDisplayPrices() {
             document.querySelectorAll('.dynamic-price').forEach(el => {
                 el.textContent = currentPrice + ' ₴';
@@ -808,11 +814,16 @@
             };
 
             try {
+                const formBody = new URLSearchParams();
+                for (const key in payload) {
+                    formBody.append(key, payload[key]);
+                }
+
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formBody
                 });
 
                 trackInitiateCheckout();
@@ -884,8 +895,8 @@
         // -------------------------
         // SECRET TEST PAYMENT LOGIC
         // -------------------------
-        const isTestLink = urlParams.get('debug_mode') === 'active' && urlParams.get('auth') === 'admin_payment_test_v7';
         if (isTestLink) {
+            updateDisplayPrices(); // Ensure price is updated immediately for debug mode
             const secretTrigger = document.getElementById('secret-trigger');
             if (secretTrigger) {
                 let clicks = 0;
