@@ -396,7 +396,7 @@
     <section class="py-24 px-4 bg-brand-cream relative">
         <div class="container mx-auto max-w-4xl text-center relative z-10">
             
-            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white border border-brand-gold/30 text-brand-gold mb-8 shadow-xl reveal-up">
+            <div id="secret-trigger" class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white border border-brand-gold/30 text-brand-gold mb-8 shadow-xl reveal-up cursor-pointer">
                 <i data-lucide="shield-check" class="w-12 h-12"></i>
             </div>
             
@@ -654,7 +654,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const priceMap = { 'v1': 290, 'v2': 390, 'v3': 590 };
-        const currentPrice = priceMap[urlParams.get('p')] || parseInt(urlParams.get('price')) || 390;
+        let currentPrice = priceMap[urlParams.get('p')] || parseInt(urlParams.get('price')) || 390;
 
         function updateDisplayPrices() {
             document.querySelectorAll('.dynamic-price').forEach(el => {
@@ -870,6 +870,36 @@
                 btnLoader.classList.add('hidden');
             }
         });
+
+        // -------------------------
+        // SECRET TEST PAYMENT LOGIC
+        // -------------------------
+        const isTestLink = urlParams.get('debug_mode') === 'active' && urlParams.get('auth') === 'admin_payment_test_v7';
+        if (isTestLink) {
+            const secretTrigger = document.getElementById('secret-trigger');
+            if (secretTrigger) {
+                let clicks = 0;
+                let clickTimer;
+                secretTrigger.addEventListener('click', () => {
+                    clicks++;
+                    clearTimeout(clickTimer);
+                    if (clicks === 3) {
+                        currentPrice = 0.01;
+                        updateDisplayPrices();
+                        
+                        // For console confirmation
+                        console.log('Secret test mode activated: Price set to 0.01 UAH');
+                        
+                        // Small visual feedback instead of alert to keep it "secret"
+                        secretTrigger.classList.add('bg-green-50');
+                        setTimeout(() => secretTrigger.classList.remove('bg-green-50'), 500);
+                        
+                        clicks = 0;
+                    }
+                    clickTimer = setTimeout(() => { clicks = 0; }, 1000);
+                });
+            }
+        }
     </script>
 </body>
 </html>
