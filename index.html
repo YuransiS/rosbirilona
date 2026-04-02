@@ -781,7 +781,9 @@
                 utm_term: urlParams.get('utm_term') || ''
             };
 
-            const returnUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `thankyou.html?value=${currentPrice}`;
+            const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+            const returnUrl = baseUrl + `thankyou.html?value=${currentPrice}`;
+            const failUrl = baseUrl + `fail.html?order=${orderReference}`;
             
             const orderReference = 'ILONA_505542102_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
 
@@ -831,6 +833,7 @@
                     amount: amount,
                     currency: currency,
                     returnUrl: returnUrl,
+                    failUrl: failUrl,
                     serviceUrl: GOOGLE_SCRIPT_URL,
                     merchantSignature: merchantSignature,
                     clientFirstName: payload.name,
