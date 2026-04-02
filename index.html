@@ -39,7 +39,7 @@
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        if(PIXEL_ID !== '1299600201739170') {
+        if(PIXEL_ID) {
             fbq('init', PIXEL_ID);
             fbq('track', 'PageView');
         }
@@ -725,13 +725,20 @@
             initialCountry: "auto",
             onlyCountries: europeanCountries, 
             geoIpLookup: function(success) {
-                fetch("https://get.geojs.io/v1/ip/country.json")
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+                
+                fetch("https://get.geojs.io/v1/ip/country.json", { signal: controller.signal })
                     .then(res => res.json())
                     .then(data => {
-                        let country = data.country.toLowerCase();
+                        clearTimeout(timeoutId);
+                        let country = data && data.country ? data.country.toLowerCase() : 'ua';
                         if(country === 'ru' || country === 'by') country = 'ua';
                         success(country);
-                    }).catch(() => success("ua"));
+                    }).catch(() => {
+                        clearTimeout(timeoutId);
+                        success("ua");
+                    });
             },
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
         });
@@ -781,11 +788,11 @@
                 utm_term: urlParams.get('utm_term') || ''
             };
 
+            const orderReference = 'ILONA_505542102_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+
             const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
             const returnUrl = baseUrl + `thankyou.html?value=${currentPrice}`;
             const failUrl = baseUrl + `fail.html?order=${orderReference}`;
-            
-            const orderReference = 'ILONA_505542102_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
 
             const payload = {
                 sheet_id: "505542102",
